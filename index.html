@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Adriel & Jenny — 2026 Travels</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f5f4f0;
+      color: #1a1a18;
+      min-height: 100vh;
+      padding: 24px 16px 48px;
+    }
+
+    .container {
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
+    header {
+      padding: 8px 0 24px;
+    }
+
+    header h1 {
+      font-size: 22px;
+      font-weight: 600;
+      color: #1a1a18;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 4px;
+    }
+
+    header p {
+      font-size: 13px;
+      color: #73726c;
+    }
+
+    .trips { display: flex; flex-direction: column; gap: 10px; }
+
+    .card {
+      background: #fff;
+      border: 1px solid #e3e2dc;
+      border-radius: 14px;
+      overflow: hidden;
+      transition: box-shadow 0.15s;
+    }
+
+    .card:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.07); }
+    .card.next { border: 2px solid #3b82f6; }
+
+    .row {
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .row:hover { background: #fafaf8; }
+
+    .badge {
+      width: 42px; height: 42px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .meta { flex: 1; min-width: 0; }
+
+    .name {
+      font-size: 14px;
+      font-weight: 600;
+      color: #1a1a18;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .date { font-size: 12px; color: #73726c; margin-top: 2px; }
+
+    .tag-next {
+      font-size: 11px;
+      background: #eff6ff;
+      color: #2563eb;
+      padding: 2px 9px;
+      border-radius: 99px;
+      white-space: nowrap;
+      font-weight: 500;
+    }
+
+    .tag-days { font-size: 12px; color: #73726c; white-space: nowrap; }
+
+    .tag-pass {
+      font-size: 10px;
+      background: #fffbeb;
+      color: #d97706;
+      padding: 2px 7px;
+      border-radius: 99px;
+      font-weight: 500;
+      border: 1px solid #fde68a;
+    }
+
+    .chev {
+      font-size: 12px;
+      color: #b0aea6;
+      transition: transform .2s;
+      flex-shrink: 0;
+    }
+    .chev.open { transform: rotate(180deg); }
+
+    .body {
+      border-top: 1px solid #e3e2dc;
+      padding: 14px 16px;
+      display: none;
+    }
+    .body.open { display: block; }
+
+    /* Forecast grid */
+    .forecast-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(58px, 1fr));
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+
+    .day-card {
+      background: #f5f4f0;
+      border-radius: 10px;
+      padding: 8px 4px;
+      text-align: center;
+      border: 1px solid #e3e2dc;
+    }
+
+    .day-name { font-size: 10px; color: #73726c; margin-bottom: 4px; font-weight: 500; }
+    .day-ico { font-size: 20px; margin-bottom: 4px; }
+    .day-hi { font-size: 14px; font-weight: 600; color: #1a1a18; }
+    .day-rain { font-size: 10px; color: #3b82f6; margin-top: 3px; }
+
+    /* Seasonal weather row */
+    .wrow { display: flex; gap: 12px; margin-bottom: 14px; align-items: flex-start; }
+    .wico { font-size: 30px; line-height: 1; }
+    .wlbl { font-size: 11px; font-weight: 600; color: #73726c; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 3px; }
+    .wsumm { font-size: 14px; color: #1a1a18; line-height: 1.5; }
+    .wtemp { font-size: 12px; color: #73726c; margin-top: 2px; }
+    .seasonal-note { font-size: 10px; color: #b0aea6; font-weight: 400; text-transform: none; letter-spacing: 0; }
+
+    .div { height: 1px; background: #e3e2dc; margin: 12px 0; }
+
+    .slbl { font-size: 11px; font-weight: 600; color: #b0aea6; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 6px; }
+
+    .chips { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px; }
+
+    .chip {
+      font-size: 12px;
+      background: #f5f4f0;
+      color: #3d3d3a;
+      padding: 4px 10px;
+      border-radius: 99px;
+      border: 1px solid #e3e2dc;
+    }
+
+    .chip.e {
+      background: #eff6ff;
+      color: #2563eb;
+      border-color: #bfdbfe;
+    }
+
+    .tip {
+      font-size: 13px;
+      color: #3d3d3a;
+      line-height: 1.65;
+      background: #f5f4f0;
+      border-radius: 10px;
+      padding: 10px 12px;
+    }
+
+    .live-badge {
+      display: inline-block;
+      font-size: 9px;
+      font-weight: 600;
+      background: #dcfce7;
+      color: #16a34a;
+      padding: 1px 6px;
+      border-radius: 99px;
+      margin-left: 4px;
+      vertical-align: middle;
+      letter-spacing: .03em;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 12px;
+      color: #b0aea6;
+      margin-top: 32px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      body { background: #1a1a18; color: #e8e7e1; }
+      .card { background: #252522; border-color: #3a3a36; }
+      .card.next { border-color: #3b82f6; }
+      .row:hover { background: #2c2c28; }
+      .name { color: #e8e7e1; }
+      .date, .tag-days, .wtemp, footer { color: #888780; }
+      .wlbl { color: #888780; }
+      .wsumm, .day-hi { color: #e8e7e1; }
+      .body, .day-card { background: #1a1a18; }
+      .day-card { border-color: #3a3a36; background: #2c2c28; }
+      .div { background: #3a3a36; }
+      .chip { background: #2c2c28; color: #c2c0b6; border-color: #3a3a36; }
+      .chip.e { background: #1e3a5f; color: #93c5fd; border-color: #1d4ed8; }
+      .tip { background: #2c2c28; color: #c2c0b6; }
+      .tag-pass { background: #2d2000; color: #fbbf24; border-color: #78350f; }
+      .tag-next { background: #1e3a5f; color: #93c5fd; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>✈️ Adriel & Jenny</h1>
+    <p>2026 Travel Planner · 7 trips · Tap any card for details</p>
+  </header>
+
+  <div class="trips" id="trips"></div>
+
+  <footer>Updated March 2026</footer>
+</div>
+
+<script>
+  function rainIcon(pct) {
+    if (pct >= 70) return "🌧️";
+    if (pct >= 40) return "🌦️";
+    if (pct >= 15) return "⛅";
+    return "☀️";
+  }
+
+  const trips = [
+    {
+      id: "sd", name: "San Diego, CA", emoji: "🌊", bg: "#e8f4fd",
+      dl: "Mar 20–21", du: 3, ni: 1, nx: true, pp: false,
+      live: true,
+      forecast: [
+        { day: "Fri", high: 77, rain: 0 },
+        { day: "Sat", high: 73, rain: 10 }
+      ],
+      weather: { icon: "☀️", summary: "Sunny and warm with a light ocean breeze", temp: "73–77°F" },
+      essentials: ["Sunscreen", "Sunglasses", "Comfortable walking shoes"],
+      clothing: ["Light t-shirts", "Shorts or casual pants", "Light jacket for evenings"],
+      extras: ["Beach towel", "Camera", "Swimsuit"],
+      tip: "The Gaslamp Quarter is great for a Saturday night out — lots of good food within walking distance of the waterfront."
+    },
+    {
+      id: "sea", name: "Seattle, WA", emoji: "🌧️", bg: "#eaf3de",
+      dl: "Mar 26–30", du: 9, ni: 4, nx: false, pp: false,
+      live: true,
+      forecast: [
+        { day: "Thu", high: 54, rain: 75 },
+        { day: "Fri", high: 56, rain: 45 },
+        { day: "Sat", high: 49, rain: 20 }
+      ],
+      weather: { icon: "🌦️", summary: "Cool and rainy — very typical Seattle late March", temp: "49–56°F" },
+      essentials: ["Umbrella", "Rain jacket", "Waterproof shoes"],
+      clothing: ["Layers (sweaters, long sleeves)", "Jeans or pants", "Warm socks"],
+      extras: ["Reusable coffee cup", "Portable charger", "Day bag"],
+      tip: "Seattle coffee shops are legendary — grab a cup at Pike Place Market and walk the waterfront between sessions."
+    },
+    {
+      id: "kw", name: "Kirkwood / Carson Pass", emoji: "🏔️", bg: "#faeeda",
+      dl: "Apr 25", du: 39, ni: 1, nx: false, pp: false,
+      live: false,
+      weather: { icon: "🌨️", summary: "Cool with possible snow patches at 8,200 ft elevation", temp: "45–55°F (mornings near 30°F)" },
+      essentials: ["High SPF sunscreen", "UV sunglasses", "Microspikes or traction cleats"],
+      clothing: ["Moisture-wicking base layer", "Fleece mid-layer", "Waterproof hiking boots", "Beanie & gloves"],
+      extras: ["Hiking poles", "Extra snacks & water", "Camera for the views"],
+      tip: "Take it slow the first 30 minutes — Carson Pass is above 8,000 ft and altitude hits harder than expected, even for active people."
+    },
+    {
+      id: "sw", name: "Sandra & Vienh Wedding", emoji: "💍", bg: "#fbeaf0",
+      dl: "May 17", du: 61, ni: 1, nx: false, pp: true,
+      live: false,
+      weather: { icon: "🌤️", summary: "Cool and pleasant with mild sunshine, possible light rain", temp: "58–66°F" },
+      essentials: ["Passport", "Dress shoes", "Compact umbrella"],
+      clothing: ["Formal/semi-formal outfit", "Light blazer or wrap for evening", "Comfortable dress shoes"],
+      extras: ["Wedding card", "Portable steamer", "Touch-up kit"],
+      tip: "Canada in mid-May can have surprise showers — tuck a compact umbrella in your bag so you're not caught off guard during photos."
+    },
+    {
+      id: "jw", name: "Jomar & Chloe Wedding", emoji: "💐", bg: "#e1f5ee",
+      dl: "Jun 7", du: 82, ni: 1, nx: false, pp: true,
+      live: false,
+      weather: { icon: "🌤️", summary: "Mild and mostly sunny with occasional brief showers", temp: "62–72°F" },
+      essentials: ["Passport", "Formal attire", "Light layer for evening"],
+      clothing: ["Formal outfit", "Dress shoes", "Light cardigan or blazer"],
+      extras: ["Gift or card", "Camera", "Travel-size cologne/perfume"],
+      tip: "June in Canada has lovely long days — great light for wedding photos and evenings stay comfortable."
+    },
+    {
+      id: "nw", name: "Nini's Wedding — Victoria, BC", emoji: "🌸", bg: "#eeedfe",
+      dl: "Jun 12–14", du: 87, ni: 3, nx: false, pp: true,
+      live: false,
+      weather: { icon: "🌸", summary: "Mild, sunny and beautiful — Victoria's gardens in full bloom", temp: "58–70°F" },
+      essentials: ["Passport", "Formal attire", "Comfortable walking shoes"],
+      clothing: ["Wedding outfit", "Smart-casual for extra days", "Light jacket for evenings"],
+      extras: ["Visit Butchart Gardens", "Afternoon tea at The Empress", "Camera for the harbour"],
+      tip: "Victoria is stunning in June — if you have extra time, Butchart Gardens and a stroll through the Inner Harbour are absolutely worth it."
+    },
+    {
+      id: "ec", name: "Quito, Ecuador", emoji: "🌿", bg: "#eaf3de",
+      dl: "Aug 1–9", du: 136, ni: 9, nx: false, pp: true,
+      live: false,
+      weather: { icon: "🌤️", summary: "Dry season — mild days with strong equatorial sun and cool evenings", temp: "Days 63–66°F · Evenings 46–50°F" },
+      essentials: ["Passport", "High SPF sunscreen (equatorial UV is extreme)", "Altitude remedy (ask doctor about Diamox)"],
+      clothing: ["Light layers you can add/remove", "Warm fleece for evenings", "Comfortable walking shoes"],
+      extras: ["Day trip to Mitad del Mundo", "Camera", "Spanish phrasebook"],
+      tip: "Quito sits at 9,350 ft — drink extra water, skip heavy meals and alcohol on day 1, and let your body adjust before doing anything strenuous."
+    }
+  ];
+
+  function daysLabel(d) {
+    if (d <= 0) return "Now";
+    if (d < 7) return `In ${d} days`;
+    const w = Math.round(d / 7);
+    return `~${w} wk${w > 1 ? 's' : ''}`;
+  }
+
+  function buildBody(t) {
+    let weatherHTML = '';
+    if (t.live && t.forecast) {
+      const days = t.forecast.map(f => `
+        <div class="day-card">
+          <div class="day-name">${f.day}</div>
+          <div class="day-ico">${rainIcon(f.rain)}</div>
+          <div class="day-hi">${f.high}°F</div>
+          ${f.rain > 0 ? `<div class="day-rain">${f.rain}% 💧</div>` : '<div class="day-rain" style="visibility:hidden">—</div>'}
+        </div>`).join('');
+      weatherHTML = `
+        <div class="wlbl">Live forecast <span class="live-badge">LIVE</span></div>
+        <div class="forecast-grid" style="margin-top:8px">${days}</div>`;
+    } else {
+      weatherHTML = `
+        <div class="wrow">
+          <div class="wico">${t.weather.icon}</div>
+          <div>
+            <div class="wlbl">Typical weather <span class="seasonal-note">(forecast not yet available)</span></div>
+            <div class="wsumm">${t.weather.summary}</div>
+            <div class="wtemp">${t.weather.temp}</div>
+          </div>
+        </div>`;
+    }
+
+    return `
+      ${weatherHTML}
+      <div class="div"></div>
+      <div class="wlbl" style="margin-bottom:9px">What to pack</div>
+      <div class="slbl">Essentials</div>
+      <div class="chips">${t.essentials.map(e => `<span class="chip e">${e}</span>`).join('')}</div>
+      <div class="slbl">Clothing</div>
+      <div class="chips">${t.clothing.map(e => `<span class="chip">${e}</span>`).join('')}</div>
+      <div class="slbl">Extras / to-do</div>
+      <div class="chips" style="margin-bottom:12px">${t.extras.map(e => `<span class="chip">${e}</span>`).join('')}</div>
+      <div class="div"></div>
+      <div class="tip">💡 ${t.tip}</div>`;
+  }
+
+  function render() {
+    const container = document.getElementById('trips');
+    trips.forEach(t => {
+      const card = document.createElement('div');
+      card.className = 'card' + (t.nx ? ' next' : '');
+      card.innerHTML = `
+        <div class="row" onclick="tog('${t.id}')">
+          <div class="badge" style="background:${t.bg}">${t.emoji}</div>
+          <div class="meta">
+            <div class="name">${t.name}${t.pp ? ' <span class="tag-pass">🛂 Passport</span>' : ''}</div>
+            <div class="date">${t.dl} · ${t.ni} night${t.ni > 1 ? 's' : ''}</div>
+          </div>
+          ${t.nx ? '<span class="tag-next">Next up</span>' : `<span class="tag-days">${daysLabel(t.du)}</span>`}
+          <span class="chev" id="chev-${t.id}">▾</span>
+        </div>
+        <div class="body" id="body-${t.id}">${buildBody(t)}</div>`;
+      container.appendChild(card);
+    });
+  }
+
+  function tog(id) {
+    document.getElementById('body-' + id).classList.toggle('open');
+    document.getElementById('chev-' + id).classList.toggle('open');
+  }
+
+  render();
+  // Auto-open next trip
+  tog('sd');
+</script>
+</body>
+</html>
